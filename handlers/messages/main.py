@@ -1,10 +1,10 @@
 from pyrogram import Client, Message, Filters
 
-from handlers.filters import secret_input_filter, api_key_input_filter
+from handlers.filters import secret_input_filter, api_key_input_filter, user_none_filter
 from models import db, Msg
 
 
-@Client.on_message(~Filters.bot & ~secret_input_filter & ~api_key_input_filter, group=-1)
+@Client.on_message(~Filters.bot & ~user_none_filter & ~secret_input_filter & ~api_key_input_filter, group=-1)
 def msg_monitor(bot: Client, m: Message):
     """
     Сохраняет в БД все сообщения кроме API и Secret ключей

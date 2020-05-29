@@ -28,6 +28,11 @@ def has_keys(_, message: Message):
     return True if user.api_key and user.secret else False
 
 
+def user_none(_, message: Message):
+    user = User.get_or_none(tg_id=message.from_user.id)
+    return True if user is None else False
+
+
 def buy_btc_f(_, q: CallbackQuery):
     return True if q.data == 'buy_btc' else False
 
@@ -85,3 +90,4 @@ buy_btc_filter = Filters.create(buy_btc_f)
 is_full_order_filter = Filters.create(is_full_order)
 is_market_order_filter = Filters.create(is_market_order)
 hide_filter = Filters.create(hide_f)
+user_none_filter = Filters.create(user_none)
