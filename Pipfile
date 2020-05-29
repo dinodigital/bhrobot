@@ -15,6 +15,7 @@ peewee-db-evolve = "*"
 psycopg2-binary = "*"
 retry = "*"
 aiohttp = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.8"

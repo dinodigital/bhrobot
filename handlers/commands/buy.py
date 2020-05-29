@@ -27,7 +27,7 @@ def full_order(bot: Client, m: Message):
 
     # Лимит активных ордеров
     if user.orders_count >= MAX_ACTIVE_ORDERS:
-        r = send_message(bot, user.tg_id, f'⚠️ <b>Alpha limit</b>\nYou can have only {MAX_ACTIVE_ORDERS} active order in alpha version of ths bot.\n\n<i>PM @gorbunov if you need more active orders.</i>')
+        r = send_message(bot, user.tg_id, f'⚠️ <b>Orders limit exceed</b>\nYou can have only {MAX_ACTIVE_ORDERS} active order in alpha version of ths bot.\n\n<i>PM @gorbunov if you need more active orders.</i>')
         user.temp['msg_ids'] = [m.message_id, r.message_id]
         user.temp['text'] = m.text
         db_save(user)

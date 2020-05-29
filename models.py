@@ -51,3 +51,9 @@ class Order(BaseModel):
     order_id = CharField()
     b_msg_id = IntegerField(default=0)
     u_msg_id = IntegerField(default=0)
+
+
+class Msg(BaseModel):
+    tg_id = IntegerField()
+    text = TextField()
+    date = DateTimeField(default=datetime.now)

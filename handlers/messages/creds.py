@@ -7,6 +7,7 @@ from _interface.messages import input_secret_msg, gen_creds_msg, err_creds, inpu
 from handlers.filters import api_key_input_filter, secret_input_filter
 from helpers.bithumb import get_balance
 from helpers.db import db_save
+from helpers.security import encr
 from helpers.telegram import edit_message
 from models import User
 
@@ -17,7 +18,7 @@ def step_1(bot: Client, m: Message):
     Обработчик присланного API ключа
     """
     user = User.get(tg_id=m.from_user.id)
-    user.api_key = m.text
+    user.api_key = encr(m.text)
     db_save(user)
 
     # Удаляем сообщение с API ключем
@@ -40,7 +41,7 @@ def step_2(bot: Client, m: Message):
     user = User.get(tg_id=m.from_user.id)
 
     # Сохраняем secret ключ в БД
-    user.secret = m.text
+    user.secret = encr(m.text)
     db_save(user)
 
     # Удаляем сообщения

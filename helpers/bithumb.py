@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from helpers.bithumb_api import BithumbGlobalRestAPI
+from helpers.security import decr
 
 
 def pretty_round(x):
@@ -25,7 +26,7 @@ def pretty_round(x):
 
 def get_balance(key, secret):
     try:
-        bh = BithumbGlobalRestAPI(key, secret)
+        bh = BithumbGlobalRestAPI(decr(key), decr(secret))
         all_balances = bh.balance()
 
         good_balance = {}
@@ -56,7 +57,7 @@ def bh_publish_order(bh, params):
         params['quantity'] = round(params['quantity'], accuracy[0])
         return bh.place_order_2(params)
     except Exception as e:
-        return False, e.msg
+        return False, e.msg, e.code
 
 
 def get_accuracy(bh, pair):

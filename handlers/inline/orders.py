@@ -11,6 +11,7 @@ from helpers.bithumb import bh_publish_order, get_balance
 from helpers.bithumb_api import BithumbGlobalRestAPI
 from helpers.db import db_save, create_order
 from helpers.orders import parse_full_order_data, refresh_order_msg
+from helpers.security import decr
 from helpers.telegram import edit_message
 from models import User, Order
 
@@ -32,21 +33,24 @@ def publish_order(bot: Client, q: CallbackQuery):
     order_msg_id = user.temp['msg_ids'][1]  # 0 - user, 1 - bot
     text = user.temp['text']
     params = parse_full_order_data(text)
-    pprint(params)
 
     # Уведомляем о публикации ордера на БХ
     bot.edit_message_text(tg_id, order_msg_id, '🕐 Publishing order...')
 
     # Размещаем ордер
-    bh = BithumbGlobalRestAPI(user.api_key, user.secret)
+    bh = BithumbGlobalRestAPI(decr(user.api_key), decr(user.secret))
 
     try:
         order_id = bh_publish_order(bh, params)
         if type(order_id) is tuple:
             err_msg = order_id[1]
-            edit_message(bot, user.tg_id, order_msg_id, gen_err_msg(
-                f'🔴 <b>Error</b>\n{err_msg}\n\nPlease, create new order'))
-            return
+            err_code = order_id[2]
+            if err_code == '9011':
+                return edit_message(
+                    bot, user.tg_id, order_msg_id, gen_err_msg(f'🔴 <b>Error</b>\n{err_msg}\n\nPlease, allow "<b>Open Trading</b>" access in <a href="https://www.bithumb.pro/en-us/account/user/api-key/list">API Management</a> settings, wait 1 minute and create new order'))
+            return edit_message(
+                bot, user.tg_id, order_msg_id, gen_err_msg(f'🔴 <b>Error</b>\n{err_msg}\n\nPlease, create new order'))
+
     except Exception as e:
         err_msg = e.msg
         edit_message(bot, user.tg_id, order_msg_id, gen_err_msg(f'🔴 <b>Error</b>\n{err_msg}\n\nTry again'),
@@ -77,7 +81,7 @@ def refresh_order(bot: Client, q: CallbackQuery):
     user = User.get(tg_id=tg_id)
     order_msg_id = q.message.message_id
     order = Order.get(b_msg_id=order_msg_id)
-    bh = BithumbGlobalRestAPI(user.api_key, user.secret)
+    bh = BithumbGlobalRestAPI(decr(user.api_key), decr(user.secret))
 
     edit_message(bot, tg_id, order_msg_id, '🕐 Refreshing data...')
 
@@ -98,7 +102,7 @@ def cancel_order(bot: Client, q: CallbackQuery):
     order = Order.get(b_msg_id=msg_id)
     u_msg_id = order.u_msg_id
 
-    bh = BithumbGlobalRestAPI(user.api_key, user.secret)
+    bh = BithumbGlobalRestAPI(decr(user.api_key), decr(user.secret))
 
     bot.edit_message_text(tg_id, msg_id, '🕐 Cancelling order...')
 
@@ -171,7 +175,6 @@ def hide(bot: Client, q: CallbackQuery):
 
     q.message.delete()
 
-    print(data)
     if len(data) == 2:
         msg_id = int(data[1])
         bot.delete_messages(q.message.from_user.id, [msg_id])
