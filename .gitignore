@@ -148,3 +148,4 @@ config.ini
 test.py
 test2.py
 todo.txt
+log/
