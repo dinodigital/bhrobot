@@ -147,4 +147,4 @@ cython_debug/
 config.ini
 test.py
 test2.py
-todo
+todo.txt
